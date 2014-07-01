@@ -4,9 +4,7 @@
  * Register services for <%= device_type %> devices to this
  * module.
  */
-angular.module('app.services.<%= device_type %>', [
-    'app.services.common',
-]);
+angular.module('app.services.<%= device_type %>', []);
 
 /*
 

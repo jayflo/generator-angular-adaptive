@@ -4,9 +4,7 @@
  * Register resources for <%= device_type %> devices to this
  * module.
  */
-angular.module('app.resources.<%= device_type %>', [
-    'app.resources.common',
-]);
+angular.module('app.resources.<%= device_type %>', []);
 
 /*
 

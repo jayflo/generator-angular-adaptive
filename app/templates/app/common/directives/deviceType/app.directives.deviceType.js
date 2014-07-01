@@ -4,9 +4,7 @@
  * Register directves for <%= device_type %> devices to this
  * module.
  */
-angular.module('app.directives.<%= device_type %>', [
-    'app.directives.common',
-]);
+angular.module('app.directives.<%= device_type %>', []);
 
 /*
 
