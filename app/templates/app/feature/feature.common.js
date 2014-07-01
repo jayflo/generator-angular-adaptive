@@ -20,7 +20,7 @@ angular.module('<%= feature %>.common', [
     function($routeProvider, $locationProvider) {
         $routeProvider
             .when('/', {
-                templateUrl: '<%= feature %>/{deviceType}/<%= feature %>.html',
+                templateUrl: '<%= feature %>/{deviceType}/partials/<%= feature %>.html',
                 controller: '<%= feature_ctrl %>Ctrl'
             })
             .otherwise({

@@ -15,31 +15,36 @@ var AngularAdaptiveGenerator = yeoman.generators.Base.extend({
 
         var prompts = [{
             name: 'appName',
-            message: 'What is your app\'s name ?'
+            message: "What is your app's name? "
         }, {
             name: 'deviceTypes',
-            message: 'Provide a space delimited list of device types to which your app will respond.'
+            message: "Provide a space delimited list of device types to which your app\n \
+                      will respond, e.g. 'mobile tablet desktop' (don't use quotes).\n \
+                      Default: 'mobile desktop.\n"
         }];
 
         this.prompt(prompts, function(props) {
-            this.appName = props.appName;
-            this.deviceTypes = props.deviceTypes;
+            this.appName = props.appName.len ? props.appName : 'root';
+            this.deviceTypes = props.deviceTypes.length ? props.deviceTypes : 'mobile desktop';
 
             done();
         }.bind(this));
     },
 
     scaffoldFolders: function() {
+        this.rootDir = 'app/' + this.appName;
+
+        // top level
         this.mkdir('app');
         this.mkdir('lib');
         this.mkdir('.tmp');
 
         this.mkdir('app/styles');
         this.mkdir('app/images');
-
-        this.mkdir('app/root');
+        this.mkdir(this.rootDir);
         this.mkdir('app/home');
         this.mkdir('app/common');
+
         this.mkdir('app/common/directives');
         this.mkdir('app/common/resources');
         this.mkdir('app/common/services');
@@ -47,9 +52,14 @@ var AngularAdaptiveGenerator = yeoman.generators.Base.extend({
 
         this.deviceArr = this.deviceTypes.trim().split(' ');
         for (var type in this.deviceArr) {
-            this.mkdir('app/root/' + type);
+
+            this.mkdir('app/styles/' + type);
+            this.mkdir('app/images/' + type);
+
+            this.mkdir(this.rootDir '/' + type);
             this.mkdir('app/home/' + type);
-            this.mkdir('app/common/' + type);
+            this.mkdir('app/home/' + type + '/partials');
+
             this.mkdir('app/common/directives/' + type);
             this.mkdir('app/common/resources/' + type);
             this.mkdir('app/common/services/' + type);
@@ -58,45 +68,52 @@ var AngularAdaptiveGenerator = yeoman.generators.Base.extend({
 
     copyMainFiles: function() {
         // configuration files
-        this.copy('_gruntfile.js', 'Gruntfile.js');
-        this.copy('_package.json', 'package.json');
-        this.copy('_bower.json', 'bower.json');
-        this.copy('_bowerrc', '.bowerrc');
-        this.copy('_editorcfg', '.editorcfg');
-        this.copy('_jshintrc', '.jshintrc');
-        this.copy('_gitignore', '.gitignore');
+        this.copy('gruntfile.js', 'Gruntfile.js');
+        this.copy('package.json', 'package.json');
+        this.copy('bower.json', 'bower.json');
+        this.copy('bowerrc', '.bowerrc');
+        this.copy('editorcfg', '.editorcfg');
+        this.copy('jshintrc', '.jshintrc');
+        this.copy('gitignore', '.gitignore');
 
-        // unique files (non-js)
-        this.copy('_app/_index.html', 'app/index.html');
-        this.copy('_app/_styles/_main.css', 'app/styles/main.css');
+        this.rootCtrl = this.appName[0].toUpperCase() + this.appName.slice(1) + 'Ctrl';
 
-        // common scripts
-        this.copy('_app/_root/_app.common.js', 'app/root/app.common.js');
-        this.template('_app/_feature/_feature.common.js', 'app/feature/home.common.js', {
-            feature: 'home',
-            feature_ctrl: 'Home',
+        // singleton files
+        this.template('app/index.html', 'app/index.html', {
+            root_ctrl: this.rootCtrl
         });
-        this.copy('_app/_common/_directives/_app.directives.common.js', 'app/common/directives/app.directives.common.js');
-        this.copy('_app/_common/_resources/_app.resources.common.js', 'app/common/resources/app.resources.common.js');
-        this.copy('_app/_common/_services/_app.services.common.js', 'app/common/services/app.services.common.js');
+        this.copy('app/styles/main.common.css', 'app/styles/main.common.css');
+        this.template('app/root/app.common.js', this.rootDir + '/app.common.js', {
+            root_ctrl: this.rootCtrl
+        });
+        this.template('app/feature/feature.common.js', 'app/home/home.common.js', {
+            feature: 'home',
+            featurectrl: 'Home',
+        });
+        this.copy('app/common/directives/app.directives.common.js', 'app/common/directives/app.directives.common.js');
+        this.copy('app/common/resources/app.resources.common.js', 'app/common/resources/app.resources.common.js');
+        this.copy('app/common/services/app.services.common.js', 'app/common/services/app.services.common.js');
 
         // generate device specific scripts
         var context = {};
         for (var type in this.deviceTypes) {
             context = {
-                device_type: type,
-                device_type_ctrl: type[0].toUpperCase() + type.slice(1),
+                devicetype: type,
+                devicetypectrl: type[0].toUpperCase() + type.slice(1),
                 feature: 'home',
-                feature_ctrl: 'Home',
+                featurectrl: 'Home',
+                root_ctrl: this.rootCtrl,
             };
 
-            this.template('_app/_root/_deviceType/_app.deviceType.js', 'app/root/' + type + '/app.' + type + '.js', context);
-            this.template('_app/_feature/_deviceType/_feature.deviceType.js', 'app/home/' + type + '/home.' + type + '.js', context);
-            this.template('_app/_feature/_deviceType/_feature.deviceType.html', 'app/home/' + type + '/home.' + type + '.html', context);
+            this.template('app/styles/deviceType/main.deviceType.css', 'app/styles/' + type + '/main.' + type + '.css', context);
 
-            this.template('_app/_common/_directives/_deviceType/_app.directives.deviceType.js', 'app/common/directives/' + type + '/app.directives.' + type + '.js', context);
-            this.template('_app/_common/_resources/_deviceType/_app.resources.deviceType.js', 'app/common/resources/' + type + '/app.resources.' + type + '.js', context);
-            this.template('_app/_common/_services/_deviceType/_app.services.deviceType.js', 'app/common/services/' + type + '/app.services.' + type + '.js', context);
+            this.template('app/root/deviceType/app.deviceType.js', this.rootDir + '/' + type + '/app.' + type + '.js', context);
+            this.template('app/feature/deviceType/feature.deviceType.js', 'app/home/' + type + '/home.' + type + '.js', context);
+            this.template('app/feature/deviceType/partials/feature.html', 'app/home/' + type + '/partials/home.html', context);
+
+            this.template('app/common/directives/deviceType/app.directives.deviceType.js', 'app/common/directives/' + type + '/app.directives.' + type + '.js', context);
+            this.template('app/common/resources/deviceType/app.resources.deviceType.js', 'app/common/resources/' + type + '/app.resources.' + type + '.js', context);
+            this.template('app/common/services/deviceType/app.services.deviceType.js', 'app/common/services/' + type + '/app.services.' + type + '.js', context);
         }
     },
 

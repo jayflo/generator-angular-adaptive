@@ -16,7 +16,7 @@ angular.module('app.common', [
  * this controller.  Use only for application wide, device INDEPENDENT data.
  * USE SPARINGLY AND WITH CARE!
  */
-.controller('RootCtrl', ['$scope',
+.controller('<%= root_ctrl %>', ['$scope',
     function($scope) {
 
     }

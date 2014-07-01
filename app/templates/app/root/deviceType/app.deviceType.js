@@ -30,7 +30,7 @@ angular.module('app.<%= device_type %>', [
  * from the scope of this controller.  Use only for application wide data.
  * USE SPARINGLY AND WITH CARE!
  */
-.controller('Root.<%= device_type_ctrl %>Ctrl', ['$scope',
+.controller('<%= root_ctrl %>.<%= device_type_ctrl %>', ['$scope',
     function($scope) {
 
     }

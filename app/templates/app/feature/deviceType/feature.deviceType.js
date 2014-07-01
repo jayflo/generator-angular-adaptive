@@ -12,7 +12,7 @@ angular.module('<%= feature %>.<%= device_type %>', [
     '<%= feature %>.common',
 ])
 
-.controller('<%= feature_ctrl %>.<%= device_type_ctrl %>Ctrl', ['$scope',
+.controller('<%= feature_ctrl %>Ctrl.<%= device_type_ctrl %>', ['$scope',
     function($scope) {
 
     }
